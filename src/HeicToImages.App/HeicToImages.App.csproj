@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,5 +13,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HeicToImages.Application\HeicToImages.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\app-icon.ico" />
   </ItemGroup>
 </Project>

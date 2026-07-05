@@ -8,18 +8,61 @@
         Height="700"
         MinWidth="920"
         MinHeight="560">
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AppWindowBackgroundBrush"
+                           Color="#F7F8FA" />
+          <SolidColorBrush x:Key="AppTitleBrush"
+                           Color="#172033" />
+          <SolidColorBrush x:Key="AppSubtleBrush"
+                           Color="#5D6678" />
+          <SolidColorBrush x:Key="AppBodyBrush"
+                           Color="#30394B" />
+          <SolidColorBrush x:Key="AppDropBackgroundBrush"
+                           Color="#FFFFFF" />
+          <SolidColorBrush x:Key="AppDropBorderBrush"
+                           Color="#9BA8BB" />
+          <SolidColorBrush x:Key="AppPrimaryBrush"
+                           Color="#2457D6" />
+          <SolidColorBrush x:Key="AppPrimaryTextBrush"
+                           Color="#FFFFFF" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AppWindowBackgroundBrush"
+                           Color="#121417" />
+          <SolidColorBrush x:Key="AppTitleBrush"
+                           Color="#F4F7FB" />
+          <SolidColorBrush x:Key="AppSubtleBrush"
+                           Color="#A6B0C1" />
+          <SolidColorBrush x:Key="AppBodyBrush"
+                           Color="#D8DEE8" />
+          <SolidColorBrush x:Key="AppDropBackgroundBrush"
+                           Color="#1B2027" />
+          <SolidColorBrush x:Key="AppDropBorderBrush"
+                           Color="#4A5568" />
+          <SolidColorBrush x:Key="AppPrimaryBrush"
+                           Color="#5B8CFF" />
+          <SolidColorBrush x:Key="AppPrimaryTextBrush"
+                           Color="#FFFFFF" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+
   <Window.Styles>
     <Style Selector="Window">
       <Setter Property="FontFamily" Value="Segoe UI, Arial" />
-      <Setter Property="Background" Value="#F7F8FA" />
+      <Setter Property="Background" Value="{DynamicResource AppWindowBackgroundBrush}" />
     </Style>
     <Style Selector="TextBlock.title">
       <Setter Property="FontSize" Value="22" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="#172033" />
+      <Setter Property="Foreground" Value="{DynamicResource AppTitleBrush}" />
     </Style>
     <Style Selector="TextBlock.subtle">
-      <Setter Property="Foreground" Value="#5D6678" />
+      <Setter Property="Foreground" Value="{DynamicResource AppSubtleBrush}" />
       <Setter Property="FontSize" Value="13" />
     </Style>
     <Style Selector="Button">
@@ -29,8 +72,8 @@
       <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Button.primary">
-      <Setter Property="Background" Value="#2457D6" />
-      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="Background" Value="{DynamicResource AppPrimaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AppPrimaryTextBrush}" />
     </Style>
     <Style Selector="Button.pathCell">
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -43,8 +86,8 @@
       <Setter Property="Cursor" Value="Hand" />
     </Style>
     <Style Selector="Border.dropzone">
-      <Setter Property="Background" Value="#FFFFFF" />
-      <Setter Property="BorderBrush" Value="#9BA8BB" />
+      <Setter Property="Background" Value="{DynamicResource AppDropBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AppDropBorderBrush}" />
       <Setter Property="BorderThickness" Value="1.5" />
       <Setter Property="CornerRadius" Value="8" />
       <Setter Property="Padding" Value="22" />
@@ -68,10 +111,17 @@
                    Text="Output files default beside each source image with the selected extension." />
       </StackPanel>
 
-      <Button Grid.Column="1"
-              Classes="primary"
-              Command="{Binding ConvertAllCommand}"
-              Content="Convert All" />
+      <StackPanel Grid.Column="1"
+                  HorizontalAlignment="Right"
+                  Spacing="8">
+        <Button x:Name="ThemeToggleButton"
+                HorizontalAlignment="Right"
+                Click="ThemeToggleButton_OnClick"
+                Content="Theme: System" />
+        <Button Classes="primary"
+                Command="{Binding ConvertAllCommand}"
+                Content="Convert All" />
+      </StackPanel>
     </Grid>
 
     <Border x:Name="DropZone"
@@ -86,12 +136,12 @@
         <TextBlock HorizontalAlignment="Center"
                    FontSize="18"
                    FontWeight="SemiBold"
-                   Foreground="#172033"
+                   Foreground="{DynamicResource AppTitleBrush}"
                    Text="Drop HEIC files here" />
         <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    Margin="0,6,0,0"
-                   Foreground="#5D6678"
+                   Foreground="{DynamicResource AppSubtleBrush}"
                    Text="or click to select files" />
       </Grid>
     </Border>
@@ -223,7 +273,7 @@
               Content="Clear All" />
       <TextBlock Grid.Column="1"
                  VerticalAlignment="Center"
-                 Foreground="#30394B"
+                 Foreground="{DynamicResource AppBodyBrush}"
                  Text="{Binding StatusMessage}"
                  TextTrimming="CharacterEllipsis" />
       <StackPanel Grid.Column="2"

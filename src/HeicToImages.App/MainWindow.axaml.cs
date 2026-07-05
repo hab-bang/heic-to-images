@@ -2,7 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using HeicToImages.Application.Conversion;
 using HeicToImages.Application.Files;
 using HeicToImages.Application.Presentation;
@@ -11,6 +13,8 @@ namespace HeicToImages.App;
 
 public sealed partial class MainWindow : Window
 {
+    private ThemeChoice _themeChoice = ThemeChoice.System;
+
     private static readonly FilePickerFileType HeicFileType = new("HEIC images")
     {
         Patterns = ["*.heic", "*.heif", "*.HEIC", "*.HEIF"],
@@ -19,6 +23,8 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        LoadWindowIcon();
+        ApplyThemeChoice();
         DataContext = new MainWindowViewModel(
             new MagickImageConversionService(),
             new SameDirectoryImageOutputPathPolicy());
@@ -29,6 +35,57 @@ public sealed partial class MainWindow : Window
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+
+    private void LoadWindowIcon()
+    {
+        try
+        {
+            using var stream = AssetLoader.Open(new Uri("avares://HeicToImages.App/Assets/app-icon.ico"));
+            Icon = new WindowIcon(stream);
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
+        {
+            // The icon is cosmetic; startup should still succeed if the resource cannot load.
+        }
+    }
+
+    private void ThemeToggleButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _themeChoice = _themeChoice switch
+        {
+            ThemeChoice.System => ThemeChoice.Light,
+            ThemeChoice.Light => ThemeChoice.Dark,
+            _ => ThemeChoice.System,
+        };
+
+        ApplyThemeChoice();
+        e.Handled = true;
+    }
+
+    private void ApplyThemeChoice()
+    {
+        if (Avalonia.Application.Current is not { } app)
+        {
+            return;
+        }
+
+        app.RequestedThemeVariant = _themeChoice switch
+        {
+            ThemeChoice.Light => ThemeVariant.Light,
+            ThemeChoice.Dark => ThemeVariant.Dark,
+            _ => ThemeVariant.Default,
+        };
+
+        if (this.FindControl<Button>("ThemeToggleButton") is { } button)
+        {
+            button.Content = _themeChoice switch
+            {
+                ThemeChoice.Light => "Theme: Light",
+                ThemeChoice.Dark => "Theme: Dark",
+                _ => "Theme: System",
+            };
+        }
     }
 
     private void ItemsGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -255,4 +312,11 @@ public sealed partial class MainWindow : Window
             or NotSupportedException
             or PathTooLongException
             or UnauthorizedAccessException;
+
+    private enum ThemeChoice
+    {
+        System,
+        Light,
+        Dark,
+    }
 }
