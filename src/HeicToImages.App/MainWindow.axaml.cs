@@ -13,7 +13,7 @@ public sealed partial class MainWindow : Window
 {
     private static readonly FilePickerFileType HeicFileType = new("HEIC images")
     {
-        Patterns = new[] { "*.heic", "*.heif", "*.HEIC", "*.HEIF" },
+        Patterns = ["*.heic", "*.heif", "*.HEIC", "*.HEIF"],
     };
 
     public MainWindow()
@@ -114,7 +114,7 @@ public sealed partial class MainWindow : Window
         {
             Title = "Select HEIC image",
             AllowMultiple = false,
-            FileTypeFilter = new[] { HeicFileType },
+            FileTypeFilter = [HeicFileType],
         };
 
         string? directory = TryGetExistingDirectory(file.SourcePath);
@@ -149,7 +149,7 @@ public sealed partial class MainWindow : Window
         string format = ImageFormatCatalog.Normalize(file.TargetFormat);
         var outputType = new FilePickerFileType($"{format.ToUpperInvariant()} images")
         {
-            Patterns = new[] { $"*.{format}" },
+            Patterns = [$"*.{format}"],
         };
 
         var options = new FilePickerSaveOptions
@@ -157,7 +157,7 @@ public sealed partial class MainWindow : Window
             Title = "Select output image",
             SuggestedFileName = GetSuggestedOutputFileName(file),
             DefaultExtension = format,
-            FileTypeChoices = new[] { outputType },
+            FileTypeChoices = [outputType],
             SuggestedFileType = outputType,
             ShowOverwritePrompt = false,
         };
@@ -192,7 +192,7 @@ public sealed partial class MainWindow : Window
         {
             Title = "Choose HEIC images",
             AllowMultiple = true,
-            FileTypeFilter = new[] { HeicFileType },
+            FileTypeFilter = [HeicFileType],
         });
 
         var paths = pickedFiles

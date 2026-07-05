@@ -15,7 +15,7 @@ You can drag images into the app, choose the target format, review the output pa
 ## Local Setup
 
 ```powershell
-git clone <repo-url>
+git clone https://github.com/hab-bang/heic-to-images.git
 cd HeicToImages
 dotnet restore HeicToImages.slnx
 ```
@@ -46,3 +46,9 @@ dotnet build HeicToImages.slnx
 
 - `src/HeicToImages.App`: Avalonia desktop app and UI files.
 - `src/HeicToImages.Application`: conversion logic, file rules, and view models.
+
+## License
+
+This project is licensed as GPL-3.0-or-later.
+
+If someone redistributes this app or a modified version of it, they must keep it under the GPL and provide the corresponding source code.
