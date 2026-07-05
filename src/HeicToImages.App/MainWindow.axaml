@@ -1,0 +1,249 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HeicToImages.Application.Presentation"
+        x:Class="HeicToImages.App.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="HEIC to Images"
+        Width="1120"
+        Height="700"
+        MinWidth="920"
+        MinHeight="560">
+  <Window.Styles>
+    <Style Selector="Window">
+      <Setter Property="FontFamily" Value="Segoe UI, Arial" />
+      <Setter Property="Background" Value="#F7F8FA" />
+    </Style>
+    <Style Selector="TextBlock.title">
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#172033" />
+    </Style>
+    <Style Selector="TextBlock.subtle">
+      <Setter Property="Foreground" Value="#5D6678" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="MinHeight" Value="34" />
+      <Setter Property="Padding" Value="14,6" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#2457D6" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="Button.pathCell">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="MinHeight" Value="28" />
+      <Setter Property="Padding" Value="6,2" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Border.dropzone">
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#9BA8BB" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="22" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="ComboBox.formatBox">
+      <Setter Property="MinWidth" Value="92" />
+      <Setter Property="MinHeight" Value="34" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
+        Margin="28"
+        RowSpacing="18">
+    <Grid ColumnDefinitions="*,Auto"
+          ColumnSpacing="16">
+      <StackPanel Spacing="3">
+        <TextBlock Classes="title"
+                   Text="HEIC to Images" />
+        <TextBlock Classes="subtle"
+                   Text="Output files default beside each source image with the selected extension." />
+      </StackPanel>
+
+      <Button Grid.Column="1"
+              Classes="primary"
+              Command="{Binding ConvertAllCommand}"
+              Content="Convert All" />
+    </Grid>
+
+    <Border x:Name="DropZone"
+            Grid.Row="1"
+            Classes="dropzone"
+            DragDrop.AllowDrop="True"
+            PointerReleased="DropZone_OnPointerReleased">
+      <Grid RowDefinitions="Auto,Auto"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            IsHitTestVisible="False">
+        <TextBlock HorizontalAlignment="Center"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="#172033"
+                   Text="Drop HEIC files here" />
+        <TextBlock Grid.Row="1"
+                   HorizontalAlignment="Center"
+                   Margin="0,6,0,0"
+                   Foreground="#5D6678"
+                   Text="or click to select files" />
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2"
+          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto"
+          ColumnSpacing="10">
+      <ComboBox Classes="formatBox"
+                ItemsSource="{Binding TargetFormats}"
+                SelectedItem="{Binding SelectedTargetFormat, Mode=TwoWay}" />
+      <Button Grid.Column="1"
+              Command="{Binding ApplyFormatCommand}"
+              Content="Apply Format" />
+      <Button Grid.Column="2"
+              Click="AddFilesButton_OnClick"
+              Content="Add Files" />
+      <Button Grid.Column="3"
+              Click="ChooseOutputFolderButton_OnClick"
+              Content="Choose Output Folder" />
+      <Button Grid.Column="4"
+              Command="{Binding ConvertSelectedCommand}"
+              Content="Convert Selected" />
+      <Button Grid.Column="5"
+              Command="{Binding DeleteSelectedCommand}"
+              Content="Delete Selected" />
+      <Button Grid.Column="7"
+              Command="{Binding CancelCommand}"
+              Content="Cancel" />
+    </Grid>
+
+    <DataGrid Grid.Row="3"
+              x:Name="ItemsGrid"
+              ItemsSource="{Binding Files}"
+              SelectedItem="{Binding SelectedFile}"
+              AutoGenerateColumns="False"
+              CanUserResizeColumns="True"
+              CanUserSortColumns="False"
+              GridLinesVisibility="Horizontal"
+              HeadersVisibility="Column"
+              IsReadOnly="False"
+              RowHeight="36"
+              SelectionChanged="ItemsGrid_OnSelectionChanged"
+              SelectionMode="Extended">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="Input Image"
+                                Width="2*">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Classes="pathCell"
+                      Click="InputPathCellButton_OnClick"
+                      Focusable="False"
+                      ToolTip.Tip="Select input HEIC image">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Text="{Binding FileName}"
+                             TextTrimming="CharacterEllipsis"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1"
+                             Margin="8,0,0,0"
+                             Text="..."
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center" />
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="Folder"
+                            Binding="{Binding DirectoryPath}"
+                            IsReadOnly="True"
+                            Width="2.4*" />
+        <DataGridTemplateColumn Header="Output Image"
+                                Width="3*">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Classes="pathCell"
+                      Click="OutputPathCellButton_OnClick"
+                      Focusable="False"
+                      ToolTip.Tip="Select output image path">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Text="{Binding OutputPath}"
+                             TextTrimming="CharacterEllipsis"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1"
+                             Margin="8,0,0,0"
+                             Text="..."
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center" />
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+          <DataGridTemplateColumn.CellEditingTemplate>
+            <DataTemplate>
+              <TextBox Text="{Binding OutputPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellEditingTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTemplateColumn Header="Format"
+                                Width="115">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <TextBlock HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Text="{Binding TargetFormat}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+          <DataGridTemplateColumn.CellEditingTemplate>
+            <DataTemplate>
+              <ComboBox ItemsSource="{Binding DataContext.TargetFormats, RelativeSource={RelativeSource AncestorType=Window}}"
+                        SelectedItem="{Binding TargetFormat, Mode=TwoWay}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellEditingTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="Status"
+                            Binding="{Binding StatusText}"
+                            IsReadOnly="True"
+                            Width="115" />
+        <DataGridTextColumn Header="Details"
+                            Binding="{Binding Message}"
+                            IsReadOnly="True"
+                            Width="2*" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <Grid Grid.Row="4"
+          ColumnDefinitions="Auto,*,Auto"
+          ColumnSpacing="16">
+      <Button Command="{Binding ClearFilesCommand}"
+              Content="Clear All" />
+      <TextBlock Grid.Column="1"
+                 VerticalAlignment="Center"
+                 Foreground="#30394B"
+                 Text="{Binding StatusMessage}"
+                 TextTrimming="CharacterEllipsis" />
+      <StackPanel Grid.Column="2"
+                  Orientation="Horizontal"
+                  Spacing="8"
+                  VerticalAlignment="Center">
+        <TextBlock VerticalAlignment="Center"
+                   Classes="subtle"
+                   IsVisible="{Binding IsProgressVisible}"
+                   Text="{Binding ProgressText}" />
+        <ProgressBar Width="180"
+                     Height="10"
+                     Minimum="0"
+                     Maximum="100"
+                     Value="{Binding ProgressPercent}"
+                     IsVisible="{Binding IsProgressVisible}" />
+        <TextBlock VerticalAlignment="Center"
+                   Classes="subtle"
+                   Text="{Binding FileCountText}" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</Window>

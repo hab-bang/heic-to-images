@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HeicToImages.App/HeicToImages.App.csproj" />
+    <Project Path="src/HeicToImages.Application/HeicToImages.Application.csproj" />
+  </Folder>
+</Solution>
