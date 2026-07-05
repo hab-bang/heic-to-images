@@ -6,7 +6,6 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using HeicToImages.Application.Conversion;
 using HeicToImages.Application.Files;
 using HeicToImages.Application.Presentation;
@@ -25,7 +24,7 @@ public sealed partial class MainWindow : Window
         "M12.74 2.03a9.5 9.5 0 1 0 9.23 9.23.75.75 0 0 0-1.18-.62 7 7 0 0 1-9.43-9.43.75.75 0 0 0-.62-1.18z M12 20a8 8 0 0 1-3.92-14.97A8.5 8.5 0 0 0 18.97 15.92 8 8 0 0 1 12 20z");
 
     private ThemeChoice _themeChoice = ThemeChoice.System;
-    private bool _ignoreGridSelectionChange;
+    private bool _isSyncingGridSelection;
 
     private static readonly FilePickerFileType HeicFileType = new("HEIC images")
     {
@@ -127,28 +126,59 @@ public sealed partial class MainWindow : Window
 
     private void ItemsGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (_ignoreGridSelectionChange)
+        // Ignore the selection changes we raise ourselves while mirroring the
+        // checkboxes back into the grid (see SyncGridSelectionToModel).
+        if (_isSyncingGridSelection)
         {
             return;
         }
 
+        // A row gesture (plain / Ctrl / Shift click) is the source of truth here:
+        // push the grid's selection onto the checkbox-backed model.
         if (sender is DataGrid grid && DataContext is MainWindowViewModel viewModel)
         {
             viewModel.SetSelectedFiles(grid.SelectedItems.OfType<QueuedImageFileViewModel>());
         }
     }
 
-    private void SelectionCheckBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        _ignoreGridSelectionChange = true;
-        Dispatcher.UIThread.Post(
-            () => _ignoreGridSelectionChange = false,
-            DispatcherPriority.Background);
-    }
-
     private void SelectionCheckBox_OnClick(object? sender, RoutedEventArgs e)
     {
+        // The checkbox has already toggled IsSelected through its binding. A press on
+        // the checkbox is marked handled by the Button, so the DataGrid never runs its
+        // own row selection for it - this is therefore the one place where the grid's
+        // highlighted rows must be brought back in line with the checked rows.
+        SyncGridSelectionToModel();
         e.Handled = true;
+    }
+
+    private void SyncGridSelectionToModel()
+    {
+        if (this.FindControl<DataGrid>("ItemsGrid") is not { } grid ||
+            DataContext is not MainWindowViewModel viewModel)
+        {
+            return;
+        }
+
+        var desired = viewModel.Files.Where(file => file.IsSelected).ToList();
+        var current = grid.SelectedItems.OfType<QueuedImageFileViewModel>().ToList();
+        if (desired.Count == current.Count && desired.All(current.Contains))
+        {
+            return;
+        }
+
+        _isSyncingGridSelection = true;
+        try
+        {
+            grid.SelectedItems.Clear();
+            foreach (var file in desired)
+            {
+                grid.SelectedItems.Add(file);
+            }
+        }
+        finally
+        {
+            _isSyncingGridSelection = false;
+        }
     }
 
     private void DragOver(object? sender, DragEventArgs e)

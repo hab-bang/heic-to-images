@@ -18,9 +18,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private bool _isSynchronizingSelection;
 
     [ObservableProperty]
-    private QueuedImageFileViewModel? selectedFile;
-
-    [ObservableProperty]
     private string selectedTargetFormat = ImageFormatCatalog.Jpg;
 
     [ObservableProperty]
@@ -137,7 +134,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         _selectedFiles.Clear();
         _selectedFiles.AddRange(Files.Where(file => file.IsSelected));
-        SelectedFile = _selectedFiles.Count == 1 ? _selectedFiles[0] : null;
 
         OnPropertyChanged(nameof(SelectedFileCount));
         RefreshCommandState();
@@ -287,7 +283,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
         _selectedFiles.Clear();
         Files.Clear();
-        SelectedFile = null;
         StatusMessage = "Ready";
         ResetProgress();
         OnPropertyChanged(nameof(SelectedFileCount));
@@ -309,7 +304,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
         }
 
         _selectedFiles.Clear();
-        SelectedFile = null;
         StatusMessage = $"{Files.Count} image{Plural(Files.Count)} queued.";
         OnPropertyChanged(nameof(SelectedFileCount));
         RefreshCommandState();
@@ -506,11 +500,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
         {
             RefreshCommandState();
         }
-    }
-
-    partial void OnSelectedFileChanged(QueuedImageFileViewModel? value)
-    {
-        DeleteSelectedCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnIsConvertingChanged(bool value)

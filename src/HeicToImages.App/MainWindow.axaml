@@ -182,7 +182,6 @@
     <DataGrid Grid.Row="3"
               x:Name="ItemsGrid"
               ItemsSource="{Binding Files}"
-              SelectedItem="{Binding SelectedFile}"
               AutoGenerateColumns="False"
               CanUserResizeColumns="True"
               CanUserSortColumns="False"
@@ -200,8 +199,7 @@
               <CheckBox HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                        Click="SelectionCheckBox_OnClick"
-                        PointerPressed="SelectionCheckBox_OnPointerPressed" />
+                        Click="SelectionCheckBox_OnClick" />
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
