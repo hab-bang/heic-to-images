@@ -15,6 +15,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private readonly StringComparer _pathComparer;
     private readonly List<QueuedImageFileViewModel> _selectedFiles = new();
     private CancellationTokenSource? _conversionCancellation;
+    private bool _isSynchronizingSelection;
 
     [ObservableProperty]
     private QueuedImageFileViewModel? selectedFile;
@@ -112,8 +113,30 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         ArgumentNullException.ThrowIfNull(selectedFiles);
 
+        var selectedSet = selectedFiles
+            .Where(file => Files.Contains(file))
+            .ToHashSet();
+
+        _isSynchronizingSelection = true;
+        try
+        {
+            foreach (var file in Files)
+            {
+                file.IsSelected = selectedSet.Contains(file);
+            }
+        }
+        finally
+        {
+            _isSynchronizingSelection = false;
+        }
+
+        RefreshSelectedFiles();
+    }
+
+    private void RefreshSelectedFiles()
+    {
         _selectedFiles.Clear();
-        _selectedFiles.AddRange(selectedFiles.Where(file => Files.Contains(file)));
+        _selectedFiles.AddRange(Files.Where(file => file.IsSelected));
         SelectedFile = _selectedFiles.Count == 1 ? _selectedFiles[0] : null;
 
         OnPropertyChanged(nameof(SelectedFileCount));
@@ -469,6 +492,13 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     private void QueuedFileChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(QueuedImageFileViewModel.IsSelected) &&
+            !_isSynchronizingSelection)
+        {
+            RefreshSelectedFiles();
+            return;
+        }
+
         if (e.PropertyName is nameof(QueuedImageFileViewModel.CanConvert)
             or nameof(QueuedImageFileViewModel.Status)
             or nameof(QueuedImageFileViewModel.OutputPath)

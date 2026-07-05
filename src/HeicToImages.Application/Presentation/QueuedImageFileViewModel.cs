@@ -11,6 +11,7 @@ public sealed class QueuedImageFileViewModel : ObservableObject
     private string _targetFormat;
     private QueuedImageStatus _status;
     private string _message = "Ready";
+    private bool _isSelected;
 
     public QueuedImageFileViewModel(string sourcePath, string outputPath, string targetFormat)
     {
@@ -78,6 +79,12 @@ public sealed class QueuedImageFileViewModel : ObservableObject
     {
         get => _message;
         private set => SetProperty(ref _message, value);
+    }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
     }
 
     public string FileName => Path.GetFileName(SourcePath);
