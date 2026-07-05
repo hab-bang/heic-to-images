@@ -97,6 +97,13 @@
       <Setter Property="MinWidth" Value="92" />
       <Setter Property="MinHeight" Value="34" />
     </Style>
+    <Style Selector="Button.themeToggle">
+      <Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="MinWidth" Value="42" />
+      <Setter Property="Width" Value="42" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="Padding" Value="8,6" />
+    </Style>
   </Window.Styles>
 
   <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
@@ -115,9 +122,9 @@
                   HorizontalAlignment="Right"
                   Spacing="8">
         <Button x:Name="ThemeToggleButton"
-                HorizontalAlignment="Right"
+                Classes="themeToggle"
                 Click="ThemeToggleButton_OnClick"
-                Content="Theme: System" />
+                ToolTip.Tip="Click to change theme to Light" />
         <Button Classes="primary"
                 Command="{Binding ConvertAllCommand}"
                 Content="Convert All" />

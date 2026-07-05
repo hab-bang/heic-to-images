@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
@@ -13,6 +14,15 @@ namespace HeicToImages.App;
 
 public sealed partial class MainWindow : Window
 {
+    private static readonly Geometry SystemThemeIcon = StreamGeometry.Parse(
+        "M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.3 7.3 0 0 0-1.69-.98L14.5 2.42A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.5.42L9.12 5.07c-.6.24-1.17.56-1.69.98l-2.49-1c-.23-.08-.48 0-.6.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.6-.24 1.17-.56 1.69-.98l2.49 1c.23.08.48 0 .6-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z M12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z");
+
+    private static readonly Geometry LightThemeIcon = StreamGeometry.Parse(
+        "M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42z M1 13h3v-2H1v2z M11 1h2v3h-2V1z M20 11v2h3v-2h-3z M18.66 6.27l1.79-1.8-1.41-1.41-1.8 1.79 1.42 1.42z M17.24 19.16l1.8 1.79 1.41-1.41-1.79-1.8-1.42 1.42z M4.96 20.95l1.8-1.79-1.42-1.42-1.79 1.8 1.41 1.41z M11 20h2v3h-2v-3z M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z M12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z");
+
+    private static readonly Geometry DarkThemeIcon = StreamGeometry.Parse(
+        "M12.74 2.03a9.5 9.5 0 1 0 9.23 9.23.75.75 0 0 0-1.18-.62 7 7 0 0 1-9.43-9.43.75.75 0 0 0-.62-1.18z M12 20a8 8 0 0 1-3.92-14.97A8.5 8.5 0 0 0 18.97 15.92 8 8 0 0 1 12 20z");
+
     private ThemeChoice _themeChoice = ThemeChoice.System;
 
     private static readonly FilePickerFileType HeicFileType = new("HEIC images")
@@ -79,14 +89,39 @@ public sealed partial class MainWindow : Window
 
         if (this.FindControl<Button>("ThemeToggleButton") is { } button)
         {
-            button.Content = _themeChoice switch
+            button.Content = new PathIcon
             {
-                ThemeChoice.Light => "Theme: Light",
-                ThemeChoice.Dark => "Theme: Dark",
-                _ => "Theme: System",
+                Data = GetThemeIcon(_themeChoice),
+                Width = 18,
+                Height = 18,
             };
+            ToolTip.SetTip(button, $"Click to change theme to {GetThemeLabel(GetNextThemeChoice(_themeChoice))}");
         }
     }
+
+    private static Geometry GetThemeIcon(ThemeChoice choice) =>
+        choice switch
+        {
+            ThemeChoice.Light => LightThemeIcon,
+            ThemeChoice.Dark => DarkThemeIcon,
+            _ => SystemThemeIcon,
+        };
+
+    private static ThemeChoice GetNextThemeChoice(ThemeChoice choice) =>
+        choice switch
+        {
+            ThemeChoice.System => ThemeChoice.Light,
+            ThemeChoice.Light => ThemeChoice.Dark,
+            _ => ThemeChoice.System,
+        };
+
+    private static string GetThemeLabel(ThemeChoice choice) =>
+        choice switch
+        {
+            ThemeChoice.Light => "Light",
+            ThemeChoice.Dark => "Dark",
+            _ => "System",
+        };
 
     private void ItemsGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
