@@ -193,9 +193,18 @@
               SelectionChanged="ItemsGrid_OnSelectionChanged"
               SelectionMode="Extended">
       <DataGrid.Columns>
-        <DataGridCheckBoxColumn Header="Select"
-                                Binding="{Binding IsSelected, Mode=TwoWay}"
-                                Width="72" />
+        <DataGridTemplateColumn Header="Select"
+                                Width="72">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <CheckBox HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                        Click="SelectionCheckBox_OnClick"
+                        PointerPressed="SelectionCheckBox_OnPointerPressed" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
         <DataGridTemplateColumn Header="Input Image"
                                 Width="2*">
           <DataGridTemplateColumn.CellTemplate>

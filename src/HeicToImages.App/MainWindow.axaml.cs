@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using HeicToImages.Application.Conversion;
 using HeicToImages.Application.Files;
 using HeicToImages.Application.Presentation;
@@ -24,6 +25,7 @@ public sealed partial class MainWindow : Window
         "M12.74 2.03a9.5 9.5 0 1 0 9.23 9.23.75.75 0 0 0-1.18-.62 7 7 0 0 1-9.43-9.43.75.75 0 0 0-.62-1.18z M12 20a8 8 0 0 1-3.92-14.97A8.5 8.5 0 0 0 18.97 15.92 8 8 0 0 1 12 20z");
 
     private ThemeChoice _themeChoice = ThemeChoice.System;
+    private bool _ignoreGridSelectionChange;
 
     private static readonly FilePickerFileType HeicFileType = new("HEIC images")
     {
@@ -125,10 +127,28 @@ public sealed partial class MainWindow : Window
 
     private void ItemsGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
+        if (_ignoreGridSelectionChange)
+        {
+            return;
+        }
+
         if (sender is DataGrid grid && DataContext is MainWindowViewModel viewModel)
         {
             viewModel.SetSelectedFiles(grid.SelectedItems.OfType<QueuedImageFileViewModel>());
         }
+    }
+
+    private void SelectionCheckBox_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _ignoreGridSelectionChange = true;
+        Dispatcher.UIThread.Post(
+            () => _ignoreGridSelectionChange = false,
+            DispatcherPriority.Background);
+    }
+
+    private void SelectionCheckBox_OnClick(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
     }
 
     private void DragOver(object? sender, DragEventArgs e)
